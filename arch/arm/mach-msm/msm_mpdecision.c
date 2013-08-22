@@ -184,7 +184,7 @@ static unsigned long get_slowest_cpu_rate(void) {
     return slow_rate;
 }
 
-static void mpdec_cpu_up(int cpu) {
+static void __cpuinit mpdec_cpu_up(int cpu) {
     if (!cpu_online(cpu)) {
         mutex_lock(&per_cpu(msm_mpdec_cpudata, cpu).hotplug_mutex);
         cpu_up(cpu);
@@ -278,7 +278,7 @@ static int mp_decision(void) {
     return new_state;
 }
 
-static void msm_mpdec_work_thread(struct work_struct *work) {
+static void __ref msm_mpdec_work_thread(struct work_struct *work) {
     unsigned int cpu = nr_cpu_ids;
     bool suspended = false;
 
@@ -574,7 +574,7 @@ static void msm_mpdec_early_suspend(struct early_suspend *h) {
     pr_info(MPDEC_TAG"Screen -> off. Deactivated mpdecision.\n");
 }
 
-static void msm_mpdec_late_resume(struct early_suspend *h) {
+static void __ref msm_mpdec_late_resume(struct early_suspend *h) {
     int cpu = nr_cpu_ids;
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
     is_screen_on = true;
@@ -831,7 +831,7 @@ static ssize_t store_max_cpus(struct kobject *a, struct attribute *b,
     return count;
 }
 
-static ssize_t store_min_cpus(struct kobject *a, struct attribute *b,
+static ssize_t __ref store_min_cpus(struct kobject *a, struct attribute *b,
                    const char *buf, size_t count)
 {
     unsigned int input;
@@ -855,7 +855,7 @@ static ssize_t store_min_cpus(struct kobject *a, struct attribute *b,
     return count;
 }
 
-static ssize_t store_enabled(struct kobject *a, struct attribute *b,
+static ssize_t __ref store_enabled(struct kobject *a, struct attribute *b,
                    const char *buf, size_t count)
 {
     unsigned int cpu, input, enabled;
@@ -1099,7 +1099,7 @@ static int __init msm_mpdec_init(void) {
         per_cpu(msm_mpdec_cpudata, cpu).times_cpu_unplugged = 0;
         per_cpu(msm_mpdec_cpudata, cpu).times_cpu_hotplugged = 0;
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
-        per_cpu(msm_mpdec_cpudata, cpu).norm_min_freq = CONFIG_MSM_CPU_FREQ_MIN;
+        per_cpu(msm_mpdec_cpudata, cpu).norm_min_freq = 384000;//CONFIG_MSM_CPU_FREQ_MIN;
         switch (cpu) {
             case 0:
             case 1:
