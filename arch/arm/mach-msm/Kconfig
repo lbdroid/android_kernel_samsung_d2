@@ -951,6 +951,15 @@ config MACH_APEXQ
         help
           Support for Samsung ApexQ device.
 
+config MACH_AEGIS2
+        depends on ARCH_MSM8960
+        default n
+	select REGULATOR_MSM_GPIO
+	select MSM_IOMMU_GPU_SYNC if MSM_IOMMU
+        bool "MSM8960 Samsung AEGIS2"
+        help
+          Support for the Samsung AEGIS2(Verizon) device.
+
 config MACH_EXPRESS
         depends on ARCH_MSM8960
         default n
