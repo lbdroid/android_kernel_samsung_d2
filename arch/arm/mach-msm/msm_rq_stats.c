@@ -463,3 +463,4 @@ static int __init msm_rq_stats_early_init(void)
 	return 0;
 }
 core_initcall(msm_rq_stats_early_init);
+

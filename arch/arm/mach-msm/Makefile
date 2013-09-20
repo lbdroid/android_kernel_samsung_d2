@@ -313,6 +313,8 @@ obj-$(CONFIG_MACH_M2_SPR)   += board-m2_spr.o board-m2_spr-gpiomux.o
 obj-$(CONFIG_MACH_M2_VZW)   += board-m2_vzw.o board-m2_vzw-gpiomux.o
 obj-$(CONFIG_MACH_APEXQ)    += board-mms-tsp.o board-apexq.o board-apexq-gpiomux.o board-apexq-battery.o board-8960-regulator.o board-8960-storage.o
 obj-$(CONFIG_MACH_APEXQ)    += board-apexq-camera.o board-m2-display.o board-m2-pmic.o
+obj-$(CONFIG_MACH_AEGIS2)    += board-mms-tsp.o board-aegis2.o board-aegis2-gpiomux.o board-8960-regulator.o board-8960-storage.o
+obj-$(CONFIG_MACH_AEGIS2)    += board-apexq-camera.o board-m2-display.o board-m2-pmic.o
 
 obj-$(CONFIG_MACH_EXPRESS) += board-8960-regulator.o board-8960-storage.o
 obj-$(CONFIG_MACH_EXPRESS) += board-apexq-battery.o board-apexq-camera.o
@@ -373,7 +375,11 @@ obj-$(CONFIG_ARCH_MSM9625) += gpiomux-v2.o gpiomux.o
 
 
 obj-$(CONFIG_MSM_SLEEP_STATS_DEVICE) += idle_stats_device.o
+ifndef CONFIG_MSM_MPDEC
 obj-$(CONFIG_MSM_DCVS) += msm_dcvs_scm.o msm_dcvs.o msm_mpdecision.o
+else
+obj-$(CONFIG_MSM_DCVS) += msm_dcvs_scm.o msm_dcvs.o msm_mpdec.o
+endif
 obj-$(CONFIG_MSM_RUN_QUEUE_STATS) += msm_rq_stats.o
 obj-$(CONFIG_MSM_SHOW_RESUME_IRQ) += msm_show_resume_irq.o
 obj-$(CONFIG_BT_MSM_PINTEST)  += btpintest.o
