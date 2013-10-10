@@ -31,9 +31,6 @@
 #include <mach/iommu.h>
 #include <mach/msm_smsm.h>
 
-#if defined(CONFIG_MACH_M2)
-#include "../../arch/arm/mach-msm/msm_watchdog.h"
-#endif
 
 #define MRC(reg, processor, op1, crn, crm, op2)				\
 __asm__ __volatile__ (							\
@@ -92,9 +89,6 @@ static void _msm_iommu_remote_spin_lock_init(void)
 
 void msm_iommu_remote_p0_spin_lock(void)
 {
-#if defined(CONFIG_MACH_M2)
-	pet_watchdog();
-#endif
 	msm_iommu_remote_lock.lock->flag[PROC_APPS] = 1;
 	msm_iommu_remote_lock.lock->turn = 1;
 
