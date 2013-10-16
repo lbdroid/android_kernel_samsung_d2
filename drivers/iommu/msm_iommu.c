@@ -31,7 +31,6 @@
 #include <mach/iommu.h>
 #include <mach/msm_smsm.h>
 
-
 #define MRC(reg, processor, op1, crn, crm, op2)				\
 __asm__ __volatile__ (							\
 "   mrc   "   #processor "," #op1 ", %0,"  #crn "," #crm "," #op2 "\n"  \
@@ -89,6 +88,7 @@ static void _msm_iommu_remote_spin_lock_init(void)
 
 void msm_iommu_remote_p0_spin_lock(void)
 {
+#if !defined(CONFIG_MACH_M2)
 	msm_iommu_remote_lock.lock->flag[PROC_APPS] = 1;
 	msm_iommu_remote_lock.lock->turn = 1;
 
@@ -97,13 +97,16 @@ void msm_iommu_remote_p0_spin_lock(void)
 	while (msm_iommu_remote_lock.lock->flag[PROC_GPU] == 1 &&
 	       msm_iommu_remote_lock.lock->turn == 1)
 		cpu_relax();
+#endif
 }
 
 void msm_iommu_remote_p0_spin_unlock(void)
 {
+#if !defined(CONFIG_MACH_M2)
 	smp_mb();
 
 	msm_iommu_remote_lock.lock->flag[PROC_APPS] = 0;
+#endif
 }
 #endif
 
@@ -1302,3 +1305,4 @@ subsys_initcall(msm_iommu_init);
 
 MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Stepan Moskovchenko <stepanm@codeaurora.org>");
+
