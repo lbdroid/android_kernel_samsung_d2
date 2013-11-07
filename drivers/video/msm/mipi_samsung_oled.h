@@ -28,7 +28,7 @@
  */
 
 #include "mipi_dsi.h"
-#include <linux/wakelock.h>
+#include <linux/pm_wakeup.h>
 
 #ifndef MIPI_SAMSUNG_OLED_H
 #define MIPI_SAMSUNG_OLED_H
@@ -178,7 +178,7 @@ struct mipi_panel_data {
 	struct mipi_samsung_driver_data *msd;
 	struct workqueue_struct *esd_workqueue;
 	struct delayed_work esd_work;
-	struct wake_lock esd_wake_lock;
+	struct wakeup_source *esd_ws;
 };
 struct display_status {
 	unsigned char acl_on;

@@ -11,7 +11,7 @@
  */
 
 #include <linux/lcd.h>
-#include <linux/wakelock.h>
+#include <linux/pm_wakeup.h>
 #include <linux/pm_qos.h>
 #include <mach/cpuidle.h>
 #include "mipi_samsung_oled.h"
@@ -41,7 +41,7 @@ static unsigned int recovery_boot_mode;
 #define READ_MTP_ONCE
 
 #ifdef READ_REGISTER_ESD
-#define ESD_INTERVAL 3
+#define ESD_INTERVAL 2
 #endif
 
 unsigned char bypass_lcd_id;
@@ -857,14 +857,14 @@ static int mipi_samsung_disp_on(struct platform_device *pdev)
 			pr_info("%s ESD FUNCTION NOT QUEUED", __func__);
 		}
 
-		wake_lock(&(msd.mpd->esd_wake_lock));
+		__pm_stay_awake(msd.mpd->esd_ws);
 	} else {
 		first_on = false;
 	}
 #else
 	queue_delayed_work(msd.mpd->esd_workqueue,
 				&(msd.mpd->esd_work), ESD_INTERVAL * HZ);
-	if (likely(!first_on)) wake_lock(&(msd.mpd->esd_wake_lock));
+	__pm_stay_awake(msd.mpd->esd_ws);
 #endif
 #endif
 
@@ -1029,7 +1029,7 @@ static void mipi_samsung_disp_early_suspend(struct early_suspend *h)
 
 	mfd->resume_state = MIPI_SUSPEND_STATE;
 	cancel_delayed_work_sync(&(msd.mpd->esd_work));
-	wake_unlock(&(msd.mpd->esd_wake_lock));
+	__pm_relax(msd.mpd->esd_ws);
 
 #if defined(CONFIG_MIPI_SAMSUNG_ESD_REFRESH)
 		set_esd_disable();
@@ -1614,8 +1614,7 @@ static int __devinit mipi_samsung_disp_probe(struct platform_device *pdev)
 
 	INIT_DELAYED_WORK(&(msd.mpd->esd_work), esd_test_work_func);
 
-	wake_lock_init(&(msd.mpd->esd_wake_lock),
-		 WAKE_LOCK_SUSPEND, "esd_workqueue_lock");
+	msd.mpd->esd_ws = wakeup_source_register("esd_workqueue_wakeup");
 #endif
 
 	return 0;
