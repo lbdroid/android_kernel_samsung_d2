@@ -481,20 +481,14 @@ static void mpdec_input_event(struct input_handle *handle, unsigned int type,
     if (!is_screen_on)
         return;
 
-    if (mutex_trylock(&mpdec_msm_cpu_lock)){
-        for_each_offline_cpu(i) {
-            mpdec_cpu_up(i);
-        }
-        mutex_unlock(&mpdec_msm_cpu_lock);
-    }
-
     for_each_online_cpu(i) {
         queue_work_on(i, mpdec_input_wq, &per_cpu(mpdec_input_work, i));
     }
 }
 
 static int input_dev_filter(const char *input_dev_name) {
-    if (strstr(input_dev_name, "touch")) {
+    if (strstr(input_dev_name, "touch") ||
+        strstr(input_dev_name, "keypad")) {
         return 0;
     } else {
         return 1;
