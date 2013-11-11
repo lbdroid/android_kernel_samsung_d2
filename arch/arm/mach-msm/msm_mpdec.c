@@ -49,8 +49,8 @@
 #define MSM_MPDEC_IDLE_FREQ             486000
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
 #define MSM_MPDEC_BOOSTTIME             1000
-#define MSM_MPDEC_BOOSTFREQ_CPU0        918000
-#define MSM_MPDEC_BOOSTFREQ_CPU1        918000
+#define MSM_MPDEC_BOOSTFREQ_CPU0        1134000
+#define MSM_MPDEC_BOOSTFREQ_CPU1        1134000
 #define MSM_MPDEC_BOOSTFREQ_CPU2        702000
 #define MSM_MPDEC_BOOSTFREQ_CPU3        594000
 #endif
@@ -135,6 +135,7 @@ unsigned int state = MSM_MPDEC_IDLE;
 bool was_paused = false;
 #ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
 bool is_screen_on = true;
+bool global_boosted = false;
 static int update_cpu_min_freq(struct cpufreq_policy *cpu_policy,
                                int cpu, int new_freq);
 static void unboost_cpu(int cpu);
@@ -244,6 +245,10 @@ static int mp_decision(void) {
 
     if (nr_cpu_online) {
         index = (nr_cpu_online - 1) * 2;
+#ifdef CONFIG_MSM_MPDEC_INPUTBOOST_CPUMIN
+        if (global_boosted) new_state = MSM_MPDEC_UP;
+        else
+#endif
         if ((nr_cpu_online < CONFIG_NR_CPUS) && (rq_depth >= NwNs_Threshold[index])) {
             if ((total_time >= TwTs_Threshold[index]) &&
                 (nr_cpu_online < msm_mpdec_tuners_ins.max_cpus)) {
@@ -396,6 +401,7 @@ static void unboost_cpu(int cpu) {
                 pr_info(MPDEC_TAG"un boosted cpu%i to %lu", cpu, per_cpu(msm_mpdec_cpudata, cpu).norm_min_freq);
 #endif
                 per_cpu(msm_mpdec_cpudata, cpu).is_boosted = false;
+                global_boosted = false;
                 per_cpu(msm_mpdec_cpudata, cpu).revib_wq_running = false;
                 if ((cpu_policy->min != per_cpu(msm_mpdec_cpudata, cpu).boost_freq) &&
                     (cpu_policy->min != per_cpu(msm_mpdec_cpudata, cpu).norm_min_freq)) {
@@ -450,6 +456,7 @@ static void mpdec_input_callback(struct work_struct *unused) {
             pr_info(MPDEC_TAG"boosted cpu%i to %lu", cpu, per_cpu(msm_mpdec_cpudata, cpu).boost_freq);
 #endif
             per_cpu(msm_mpdec_cpudata, cpu).is_boosted = true;
+            global_boosted = true;
             per_cpu(msm_mpdec_cpudata, cpu).boost_until = ktime_to_ms(ktime_get()) + MSM_MPDEC_BOOSTTIME;
             boosted = true;
             cpufreq_cpu_put(cpu_policy);
@@ -487,8 +494,10 @@ static void mpdec_input_event(struct input_handle *handle, unsigned int type,
 }
 
 static int input_dev_filter(const char *input_dev_name) {
+    pr_info(MPDEC_TAG"Filter input dev \"touch|keys|touchkey\": %s\n", input_dev_name);
     if (strstr(input_dev_name, "touch") ||
-        strstr(input_dev_name, "keypad")) {
+        strstr(input_dev_name, "keys") ||
+        strstr(input_dev_name, "touchkey")) {
         return 0;
     } else {
         return 1;
@@ -1112,6 +1121,7 @@ static int __init msm_mpdec_init(void) {
         }
         per_cpu(msm_mpdec_cpudata, cpu).boost_freq = boost_freq;
         per_cpu(msm_mpdec_cpudata, cpu).is_boosted = false;
+        global_boosted = false;
         per_cpu(msm_mpdec_cpudata, cpu).revib_wq_running = false;
         per_cpu(msm_mpdec_cpudata, cpu).boost_until = 0;
         mutex_init(&(per_cpu(msm_mpdec_cpudata, cpu).boost_mutex));
