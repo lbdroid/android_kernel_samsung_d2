@@ -170,7 +170,7 @@ static struct acpu_level acpu_freq_tbl_nom[] __initdata = {
 	{ 0, {   972000, HFPLL, 1, 0x24 }, L2(6),  1075000 },
 	{ 1, {  1026000, HFPLL, 1, 0x26 }, L2(6),  1075000 },
 #if defined(CONFIG_MSM_DCVS_FOR_MSM8260A)
-        { 0, {  1080000, HFPLL, 1, 0x28 }, L2(18), 1137500 AVS(0x400015) },
+        { 0, {  1080000, HFPLL, 1, 0x28 }, L2(18), 1137500, AVS(0x400015) },
         { 1, {  1134000, HFPLL, 1, 0x2A }, L2(18), 1137500, AVS(0x400015) },
         { 0, {  1188000, HFPLL, 1, 0x2C }, L2(18), 1162500, AVS(0x400015) },
         { 1, {  1242000, HFPLL, 1, 0x2E }, L2(18), 1162500, AVS(0x400015) },
