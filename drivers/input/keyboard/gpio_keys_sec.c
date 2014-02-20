@@ -29,6 +29,13 @@
 #ifdef CONFIG_SEC_DEBUG
 #include <mach/sec_debug.h>
 #endif
+#if defined(CONFIG_MACH_AEGIS2) || defined(CONFIG_MACH_APEXQ)
+#include <linux/kernel.h>
+#include <linux/syscalls.h>
+#include <linux/fcntl.h>
+#include <asm/uaccess.h>
+#include <linux/file.h>
+#endif
 
 struct gpio_button_data {
 	struct gpio_keys_button *button;
@@ -323,6 +330,48 @@ static struct attribute_group gpio_keys_attr_group = {
 	.attrs = gpio_keys_attrs,
 };
 
+#if defined(CONFIG_MACH_AEGIS2) || defined(CONFIG_MACH_APEXQ)
+static void write_str(char const *path, char *data)
+{
+	struct file *file;
+	loff_t pos = 0;
+	int fd;
+
+	mm_segment_t old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	fd = sys_open(path, O_WRONLY|O_CREAT, 0644);
+	if (fd >= 0) {
+		sys_write(fd, data, strlen(data));
+		file = fget(fd);
+		if (file) {
+			vfs_write(file, data, strlen(data), &pos);
+			fput(file);
+		}
+		sys_close(fd);
+	}
+	set_fs(old_fs);
+}
+
+static int read_bool(char const *path)
+{
+	int retval;
+	char buf[5];
+	int fd;
+	mm_segment_t old_fs = get_fs();
+	set_fs(KERNEL_DS);
+
+	fd = sys_open(path, O_RDONLY, 0);
+	if (fd >= 0) {
+		sys_read(fd, buf, 5);
+		retval=(buf[0]==48)?0:1;
+		sys_close(fd);
+	}
+	set_fs(old_fs);
+	return retval;
+}
+#endif
+
 static void gpio_keys_report_event(struct gpio_button_data *bdata)
 {
 	struct gpio_keys_button *button = bdata->button;
@@ -331,6 +380,14 @@ static void gpio_keys_report_event(struct gpio_button_data *bdata)
 	int state = (gpio_get_value_cansleep(button->gpio) ? 1 : 0) ^
 	button->active_low;
 	static int count;
+	
+#if defined(CONFIG_MACH_AEGIS2) || defined(CONFIG_MACH_APEXQ)
+	char const*const BUTTON_FILE = "/sys/class/leds/button-backlight/brightness";
+	char const*const KEYBOARD_FILE = "/sys/class/leds/keyboard-backlight/brightness";
+
+	if (type == EV_SW && button->code == SW_LID)
+		write_str(KEYBOARD_FILE, (!state && read_bool(BUTTON_FILE)>0)?"1":"0");
+#endif
 
 #ifdef CONFIG_SEC_DEBUG
 	sec_debug_check_crash_key(button->code, state);
