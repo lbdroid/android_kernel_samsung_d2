@@ -865,7 +865,7 @@ static ssize_t cameraflash_file_cmd_store(struct device *dev,
 	}
 #if defined(CONFIG_MACH_APEXQ)
 	else {
-		pr_err("[Torch flash]HIGH"\n);
+		pr_err("[Torch flash]HIGH\n");
 		gpio_set_value_cansleep(gpio_flash_en, 1);
 		gpio_set_value_cansleep(gpio_flash_set, 0);
 		torchonoff = 1;
