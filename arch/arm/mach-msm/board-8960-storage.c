@@ -103,7 +103,7 @@ static struct msm_mmc_reg_data mmc_vdd_reg_data[MAX_SDCC_CONTROLLER] = {
 		.name = "sdc_vdd",
 		.high_vol_level = 2950000,
 		.low_vol_level = 2950000,
-		.hpm_uA = 800000, /* 800mA */
+		.hpm_uA = 600000, /* 600mA */
 	},
 	/* SDCC4 : External card slot connected */
 	[SDCC4] = {
@@ -366,7 +366,7 @@ static unsigned int sdc1_sup_clk_rates[] = {
 
 #ifdef CONFIG_MMC_MSM_SDC3_SUPPORT
 static unsigned int sdc3_sup_clk_rates[] = {
-	400000, 24000000, 48000000, 96000000, 192000000
+	400000, 24000000, 48000000, 96000000
 };
 #endif
 
@@ -427,7 +427,7 @@ static struct mmc_platform_data msm8960_sdc3_data = {
 	.xpc_cap	= 1,
 	.uhs_caps	= (MMC_CAP_UHS_SDR12 | MMC_CAP_UHS_SDR25 |
 			MMC_CAP_UHS_SDR50 | MMC_CAP_UHS_DDR50 |
-			MMC_CAP_UHS_SDR104 | MMC_CAP_MAX_CURRENT_800),
+			MMC_CAP_MAX_CURRENT_600),
 	.mpm_sdiowakeup_int = MSM_MPM_PIN_SDC3_DAT1,
 	.msm_bus_voting_data = &sps_to_ddr_bus_voting_data,
 };
