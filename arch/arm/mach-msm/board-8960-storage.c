@@ -366,7 +366,7 @@ static unsigned int sdc1_sup_clk_rates[] = {
 
 #ifdef CONFIG_MMC_MSM_SDC3_SUPPORT
 static unsigned int sdc3_sup_clk_rates[] = {
-	400000, 24000000, 48000000, 96000000
+	400000, 24000000, 48000000, 96000000, 192000000
 };
 #endif
 
