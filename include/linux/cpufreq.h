@@ -381,11 +381,11 @@ extern struct cpufreq_governor cpufreq_gov_hotplug;
 #endif
 
 /* the following are for use in governors, or anywhere else */
-extern int cpufreq_frequency_table_next_lowest(struct cpufreq_policy *policy,
+int cpufreq_frequency_table_next_lowest(struct cpufreq_policy *policy,
 					struct cpufreq_frequency_table *table,
 					int *index);
 
-extern int cpufreq_frequency_table_next_highest(struct cpufreq_policy *policy,
+int cpufreq_frequency_table_next_highest(struct cpufreq_policy *policy,
 					struct cpufreq_frequency_table *table,
 					int *index);
 
